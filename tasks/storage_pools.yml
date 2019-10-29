@@ -1,0 +1,59 @@
+---
+
+- block:
+    - name: Define pool
+      command: "virsh pool-define-as {{ pool.name }} {{ pool.type }} - - {{ pool.base_device }} {{ pool.vol_group_name}} {{ pool.device_path }}"
+      register: output
+      failed_when:
+      - "output.stderr != ''"
+      - "'already exists' not in output.stderr"
+      changed_when: "'already exists' not in output.stderr"
+
+    - name: Build pool
+      command: "virsh pool-build {{ pool.name }}"
+      register: output
+      failed_when:
+      - "output.stderr != ''"
+      - "'already active' not in output.stderr"
+      changed_when: "'already active' not in output.stderr"
+
+    - name: Start pool
+      command: "virsh pool-start {{ pool.name }}"
+      register: output
+      failed_when: 
+      - "output.stderr != ''"
+      - "'already active' not in output.stderr"
+      changed_when: "'already active' not in output.stderr"
+
+    - name: Set pool to autostart
+      command: "virsh pool-autostart {{ pool.name }}"
+  when:
+  - pool.present | default(true) == true
+
+
+- block:
+    - name: Deactivate pool
+      command: "virsh pool-destroy {{ pool.name }}"
+      register: output
+      failed_when:
+      - "output.stderr != ''"
+      - "'Storage pool not found' not in output.stderr"
+      changed_when: "'Storage pool not found' not in output.stderr"
+
+    - name: Delete pool
+      command: "virsh pool-delete {{ pool.name }}"
+      register: output
+      failed_when:
+      - "output.stderr != ''"
+      - "'Storage pool not found' not in output.stderr"
+      changed_when: "'Storage pool not found' not in output.stderr"
+
+    - name: Undefine pool
+      command: "virsh pool-undefine {{ pool.name }}"
+      register: output
+      failed_when:
+      - "output.stderr != ''"
+      - "'Storage pool not found' not in output.stderr"
+      changed_when: "'Storage pool not found' not in output.stderr"
+  when:
+  - pool.present | default(true) == false

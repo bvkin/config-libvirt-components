@@ -1,0 +1,58 @@
+---
+
+- block:
+    - name: Create temporary file for network configuration
+      tempfile:
+        suffix: "{{ network.name }}.xml"
+      register: network_file
+
+    - name: Template a file to /etc/files.conf
+      template:
+        src: network.xml.j2
+        dest: "{{ network_file.path }}"
+
+    - name: Load config
+      command: "virsh net-define --file {{ network_file.path }}"
+      register: output
+      failed_when:
+      - "output.stderr != ''"
+      - "'already exists' not in output.stderr"
+      changed_when: "'already exists' not in output.stderr"
+
+    - name: Start netowrk
+      command: "virsh net-start {{ network.name }}"
+      register: output
+      failed_when:
+      - "output.stderr != ''"
+      - "'already active' not in output.stderr"
+      changed_when: "'already active' not in output.stderr"
+
+    - name: Set network to autostart
+      command: "virsh net-autostart {{ network.name }}"
+
+    - name: Delete networt conf file
+      file:
+        path: "{{ network_file.path }}"
+        state: absent
+  when:
+  - network.present | default(true) == true
+
+
+- block:
+    - name: Destroy network
+      command: "virsh net-destroy {{ network.name }}"
+      register: output
+      failed_when:
+      - "output.stderr != ''"
+      - "'Network not found' not in output.stderr"
+      changed_when: "'Network not found' not in output.stderr"
+
+    - name: Undefine network
+      command: "virsh net-undefine {{ network.name }}"
+      register: output
+      failed_when:
+      - "output.stderr != ''"
+      - "'Network not found' not in output.stderr"
+      changed_when: "'Network not found' not in output.stderr"
+  when:
+  - network.present | default(true) == false
