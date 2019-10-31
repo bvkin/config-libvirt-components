@@ -1,0 +1,22 @@
+<pool type='{{ pool.type }}'>
+  <name>{{ pool.name }}</name>
+  <source>
+    {% if pool.type == 'logical' %}
+      <device path='{{ pool.device_path }}'/>
+      <name>{{ pool.vol_group_name }}</name>
+      <format type='lvm2'/>
+    {% endif %}
+  </source>
+  <target>
+    <path>{{ pool.path }}</path>
+    {% if pool.type == 'dir' %}
+    <permissions>
+      <mode>{{ pool.mode | default(0755) }}</mode>
+      <owner>{{ pool.owner | default(0) }}</owner>
+      <group>{{ pool.group | default(0) }}</group>
+      <label>unconfined_u:object_r:virt_var_lib_t:s0</label>
+    </permissions>
+    {% endif %}
+  </target>
+</pool>
+

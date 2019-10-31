@@ -1,0 +1,37 @@
+---
+
+- name: Ensure pool dir exists
+  file:
+    path: "{{ pool.path }}"
+    state: directory
+    recurse: True
+
+- name: Create temporary file for pool configuration
+  tempfile:
+    suffix: "{{ pool.name }}.xml"
+  register: pool_file
+
+- name: Write pool config to tempfile
+  template:
+    src: pool.xml.j2
+    dest: "{{ pool_file.path }}"
+
+- name: Create pool
+  command: "virsh pool-define --file {{ pool_file.path }}"
+  register: output
+  failed_when:
+  - "output.stderr != ''"
+  - "'already exists' not in output.stderr"
+  changed_when: "'already exists' not in output.stderr"
+
+- name: Start pool
+  command: "virsh pool-start {{ pool.name }}"
+  register: output
+  failed_when: 
+  - "output.stderr != ''"
+  - "'already active' not in output.stderr"
+  changed_when: "'already active' not in output.stderr"
+
+- name: Set pool to autostart
+  command: "virsh pool-autostart {{ pool.name }}"
+  

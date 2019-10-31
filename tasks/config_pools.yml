@@ -1,0 +1,15 @@
+---
+
+- include_tasks: pools/dir_pool.yml
+  when: 
+  - pool.type == 'dir'
+  - pool.present == True
+
+- include_tasks: pools/lvm_pool.yml
+  when: 
+  - pool.type == 'logical'
+  - pool.present == True
+
+- include_tasks: pools/delete_pool.yml
+  when:
+  - pool.present == False

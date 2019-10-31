@@ -1,7 +1,7 @@
 ---
 
 - name: config storage pools
-  include_tasks: ./storage_pools.yml
+  include_tasks: config_pools.yml
   with_items:
   - "{{ libvirt.pools }}"
   loop_control:
@@ -10,7 +10,7 @@
   - libvirt.pools is defined
 
 - name: config storage networks
-  include_tasks: ./networks.yml
+  include_tasks: config_networks.yml
   with_items:
   - "{{ libvirt.networks }}"
   loop_control:

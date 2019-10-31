@@ -6,7 +6,7 @@
         suffix: "{{ network.name }}.xml"
       register: network_file
 
-    - name: Template a file to /etc/files.conf
+    - name: Write network config to tempfile
       template:
         src: network.xml.j2
         dest: "{{ network_file.path }}"
@@ -30,7 +30,7 @@
     - name: Set network to autostart
       command: "virsh net-autostart {{ network.name }}"
 
-    - name: Delete networt conf file
+    - name: Delete network conf file
       file:
         path: "{{ network_file.path }}"
         state: absent

@@ -1,0 +1,25 @@
+---
+
+- name: Deactivate pool
+  command: "virsh pool-destroy {{ pool.name }}"
+  register: output
+  failed_when:
+  - "output.stderr != ''"
+  - "'Storage pool not found' not in output.stderr"
+  changed_when: "'Storage pool not found' not in output.stderr"
+
+- name: Delete pool
+  command: "virsh pool-delete {{ pool.name }}"
+  register: output
+  failed_when:
+  - "output.stderr != ''"
+  - "'Storage pool not found' not in output.stderr"
+  changed_when: "'Storage pool not found' not in output.stderr"
+
+- name: Undefine pool
+  command: "virsh pool-undefine {{ pool.name }}"
+  register: output
+  failed_when:
+  - "output.stderr != ''"
+  - "'Storage pool not found' not in output.stderr"
+  changed_when: "'Storage pool not found' not in output.stderr"
