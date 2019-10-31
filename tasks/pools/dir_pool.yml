@@ -5,6 +5,8 @@
     path: "{{ pool.path }}"
     state: directory
     recurse: True
+    owner: "{{ pool.owner | default('root') }}"
+    group: "{{ pool.group | default('root') }}"
 
 - name: Create temporary file for pool configuration
   tempfile:
